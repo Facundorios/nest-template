@@ -1,25 +1,40 @@
+// src/modules/users/entities/user.entity.ts
 import {
   Column,
-  CreateDateColumn,
-  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  CreateDateColumn,
   UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
+  DeleteDateColumn,
 } from 'typeorm';
+import { Role } from '../../roles/entities/role.entity';
 
-@Entity()
+@Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', length: 100, unique: true })
-  username: string;
-
-  @Column({ type: 'varchar', length: 100, unique: true })
+  @Column({ unique: true })
   email: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column()
   password: string;
+
+  @Column()
+  username: string;
+
+  @ManyToMany(() => Role, (role) => role.users, {
+    eager: true,
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'users_roles',
+    joinColumn: { name: 'user_id' },
+    inverseJoinColumn: { name: 'role_id' },
+  })
+  roles: Role[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -28,5 +43,5 @@ export class User {
   updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: Date | null;
+  deletedAt?: Date;
 }
